@@ -30,6 +30,9 @@ class Interviewer:
         # Appending the initial persona
         self.persona = persona
 
+        # Clean up any existing temporary files
+        self._cleanup_temp_files()
+
     def text_to_speech(self, text: str):
         try:
             speech = self.client_openai.audio.speech.create(model='tts-1', voice='alloy', input=text)
@@ -62,7 +65,7 @@ class Interviewer:
         try:
             self.history.append({'role': 'user', 'content': input_text})
             response = self.client_claude.messages.create(
-                model='claude-3-sonnet-20240229', max_tokens=1000,
+                model='claude-sonnet-4-20250514', max_tokens=1000,
                 temperature=0, system=self.persona, messages=self.history
             )
             response_text = response.content[0].text
@@ -76,18 +79,44 @@ class Interviewer:
         self.playback_finished.clear()  # Ensure this is reset before starting playback
         frames = self.recorder.record_until_silence()
         wav_filename = self.recorder.save_recording(frames)
+        text = ""
         try:
             text = transcribe_audio(wav_filename)
         except Exception as e:
             print(f"Error transcribing audio: {e}")
             text = ""
         finally:
-            os.remove(wav_filename)
+            # Safe file deletion with retry mechanism
+            self._safe_remove_file(wav_filename)
         return text
+
+    def _safe_remove_file(self, filename, max_attempts=5):
+        """Safely remove a file with retry mechanism for Windows file locking issues"""
+        import time
+        for attempt in range(max_attempts):
+            try:
+                if os.path.exists(filename):
+                    os.remove(filename)
+                break
+            except PermissionError:
+                if attempt < max_attempts - 1:
+                    time.sleep(0.1)  # Wait 100ms before retry
+                    continue
+                else:
+                    print(f"Warning: Could not delete temporary file {filename}. It will be cleaned up later.")
+            except Exception as e:
+                print(f"Warning: Error deleting file {filename}: {e}")
+                break
+
+    def _cleanup_temp_files(self):
+        """Clean up any existing temporary files"""
+        temp_files = ["temp.wav", "interviewer-speech.mp3"]
+        for temp_file in temp_files:
+            self._safe_remove_file(temp_file)
 
     def is_done(self, message):
         response = self.client_claude.messages.create(
-            model="claude-3-opus-20240229",
+            model="claude-sonnet-4-20250514",
             max_tokens=1000,
             temperature=0,
             messages=[
@@ -123,6 +152,10 @@ class Interviewer:
         # Writing to a file
         with open('history1.json','w') as file:
             json.dump(self.history,file,indent=4)
+
+        # Clean up temporary files
+        self._cleanup_temp_files()
+        print("Interview completed. Temporary files cleaned up.")
 
 
 if __name__ == '__main__':

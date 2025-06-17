@@ -48,13 +48,16 @@ class AudioRecorder:
 
     def save_recording(self, frames, filename="temp.wav"):
         """Save the recorded audio to a file."""
-        wf = wave.open(filename, 'wb')
-        wf.setnchannels(self.channels)
-        wf.setsampwidth(self.audio_interface.get_sample_size(self.format))
-        wf.setframerate(self.rate)
-        wf.writeframes(b''.join(frames))
-        wf.close()
-        return filename
+        try:
+            with wave.open(filename, 'wb') as wf:
+                wf.setnchannels(self.channels)
+                wf.setsampwidth(self.audio_interface.get_sample_size(self.format))
+                wf.setframerate(self.rate)
+                wf.writeframes(b''.join(frames))
+            return filename
+        except Exception as e:
+            print(f"Error saving audio recording: {e}")
+            raise
 
     '''def save_recording(self, frames, filename="temp.mp3"):
         """Save the recorded audio to an MP3 file."""
@@ -81,15 +84,19 @@ class AudioRecorder:
 
 def transcribe_audio(filename):
     """Transcribe audio file using Whisper."""
-    audio_file = open(filename, "rb")
-    transcription = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=audio_file,
-        response_format="text"
-    )
-    # Print the transcription text
-    print('You said: ' + transcription)
-    return transcription
+    try:
+        with open(filename, "rb") as audio_file:
+            transcription = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
+                response_format="text"
+            )
+        # Print the transcription text
+        print('You said: ' + transcription)
+        return transcription
+    except Exception as e:
+        print(f"Error transcribing audio: {e}")
+        return ""
 
     '''model = whisper.load_model("base")
     result = model.transcribe(filename)
