@@ -281,14 +281,7 @@ python conversational-dialog/test-files/testing-initial-tts.py
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
-
-**Original Development Team**:
-- Jinal Shah
-- Tej Shah
-- Akash Shah
-- Hirsh Ramani
-
-**Current Maintainer**: Saksham Mishra
+Saksham Mishra
 
 **Special Thanks**:
 - Anthropic for Claude 4 Sonnet & Opus APIs
