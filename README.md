@@ -5,7 +5,7 @@
 [![Anthropic Claude](https://img.shields.io/badge/AI-Claude%204%20Sonnet%20%26%20Opus-green.svg)](https://www.anthropic.com/)
 [![OpenAI](https://img.shields.io/badge/AI-OpenAI%20Whisper%20%26%20TTS-orange.svg)](https://openai.com/)
 
-> **Award-winning AI-powered interview practice system** - Winner of Anthropic's Build with Claude Competition
+> **Advanced AI-powered interview practice system** - Upgraded and enhanced for modern interview preparation
 
 ## 🚀 Overview
 
@@ -282,7 +282,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-**Original Development Team** (HackRU 2024):
+**Original Development Team**:
 - Jinal Shah
 - Tej Shah
 - Akash Shah

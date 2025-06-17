@@ -34,9 +34,15 @@ class Interviewer:
         self._cleanup_temp_files()
 
     def text_to_speech(self, text: str):
+        import tempfile
+        import time
+
+        # Create a unique temporary file to avoid conflicts
+        temp_audio_file = f"interviewer-speech-{int(time.time())}.mp3"
+
         try:
             speech = self.client_openai.audio.speech.create(model='tts-1', voice='alloy', input=text)
-            with open("interviewer-speech.mp3", "wb") as f:
+            with open(temp_audio_file, "wb") as f:
                 f.write(speech.content)
         except Exception as e:
             print(f"Error generating speech: {e}")
@@ -44,18 +50,18 @@ class Interviewer:
 
         def play_audio():
             try:
-                pygame.mixer.music.load("interviewer-speech.mp3")
+                pygame.mixer.music.load(temp_audio_file)
                 pygame.mixer.music.play()
                 while pygame.mixer.music.get_busy():
                     pygame.time.Clock().tick(10)
-                    '''user_input = input("Type 'c' to continue: ")
-                    if user_input == 'c':
-                        print('continuing')
-                        pygame.mixer.music.stop()
-                        break'''
             except Exception as e:
                 print(f"Error playing audio: {e}")
             finally:
+                # Stop music and unload to release file handle
+                pygame.mixer.music.stop()
+                pygame.mixer.music.unload()
+                # Clean up the temporary audio file
+                self._safe_remove_file(temp_audio_file)
                 self.playback_finished.set()
 
         threading.Thread(target=play_audio).start()
@@ -110,9 +116,16 @@ class Interviewer:
 
     def _cleanup_temp_files(self):
         """Clean up any existing temporary files"""
+        import glob
+
+        # Clean up specific temp files
         temp_files = ["temp.wav", "interviewer-speech.mp3"]
         for temp_file in temp_files:
             self._safe_remove_file(temp_file)
+
+        # Clean up any timestamped audio files
+        for audio_file in glob.glob("interviewer-speech-*.mp3"):
+            self._safe_remove_file(audio_file)
 
     def is_done(self, message):
         response = self.client_claude.messages.create(
