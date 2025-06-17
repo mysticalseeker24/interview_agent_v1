@@ -102,7 +102,7 @@ def process_job_description(text_file_path, output_folder):
         job_description = file.read()
 
     message = client.messages.create(
-        model="claude-3-sonnet-20240229",
+        model="claude-sonnet-4-20250514",
         max_tokens=1000,
         temperature=0,
         system=system_prompt,
@@ -139,7 +139,7 @@ def process_job_descriptions(input_folder, output_folder):
 
 def generate_personas():
     message = client.messages.create(
-        model="claude-3-opus-20240229",
+        model="claude-opus-4-20250514",
         max_tokens=1000,
         temperature=0,
         system="Create distinct personality types for an automated phone screening recruiter with different interests, conversation styles, and approaches. For each personality type, provide a one-paragraph description in markdown format (e.g., # Emma, The Enthusiastic Networker, # Liam, the MethodicalAnalyst, etc.) covering their interests, whether they are introverted or extroverted, their conversation style, and what they are like overall.\n",
@@ -218,7 +218,7 @@ def create_finalized_personas(job_description, job_name, k=3, personas_folder="p
             persona_description = file.read()
         # Call the API to mesh the persona with the job description
         message = client.messages.create(
-            model="claude-3-sonnet-20240229",
+            model="claude-sonnet-4-20250514",
             max_tokens=1000,
             temperature=0.2,
             messages=[
@@ -244,7 +244,7 @@ def create_finalized_personas(job_description, job_name, k=3, personas_folder="p
 
 def generate_interview_questions(job_description, k=2):
     message = client.messages.create(
-        model="claude-3-sonnet-20240229",
+        model="claude-sonnet-4-20250514",
         max_tokens=1000,
         temperature=0,
         system=f"Based on the provided document, please create a list of {k} well-crafted interview questions that an interviewer could ask any candidate applying for this position. The questions should be as concise as possible, around 1 sentence, while being informative. Please use markdown formatting for the questions, following this format where each headline is the specific question:\n\n## Question 1\n\n## Question 2\n\n...\n\n## Question k",
@@ -296,7 +296,7 @@ def save_interview_questions(df, filename, output_dir='interview-questions'):
     
 def generate_interview_questions_resume(resume, k=2):
     message = client.messages.create(
-        model="claude-3-sonnet-20240229",
+        model="claude-sonnet-4-20250514",
         max_tokens=1000,
         temperature=0,
         system=f"Based on the provided document, please create a list of {k} well-crafted interview questions that an interviewer could ask this question based on resume. The questions should be as concise as possible, around 1 sentence, while being informative. Please use markdown formatting for the questions, following this format where each headline is the specific question:\n\n## Question 1\n\n## Question 2\n\n...\n\n## Question k",
@@ -327,7 +327,7 @@ def generate_persona_response_guidelines(persona_file_location,
     base_questions_file = open(base_questions_file_location, "r").read()
 
     message = client.messages.create(
-        model="claude-3-opus-20240229",
+        model="claude-opus-4-20250514",
         max_tokens=1000,
         temperature=0,
         system="Based on the provided customer persona, job description, and interview questions, please complete the following tasks:\n\nSelect two questions from the base interview questions and two questions from the resume interview questions.\n\nFor each of the selected questions, provide an evaluation criteria in the form of one-line bullet points describing what constitutes a good response, an okay response, and a poor response.\n\nPlease structure your response as follows:\n\nCustomer Persona (Copy-Paste from Existing)\n\n[Copy and paste the persona description here]\n\nQuestion 1: [Insert the first selected question here]\n\nGood Response Criteria: [One-line bullet point describing a good response]\n\nOkay Response Criteria: [One-line bullet point describing an okay response]\n\nPoor Response Criteria: [One-line bullet point describing a poor response]\n\n...\n\nQuestion k: [Insert the kth selected question here]\n\nGood Response Criteria: [One-line bullet point describing a good response]\n\nOkay Response Criteria: [One-line bullet point describing an okay response]\n\nPoor Response Criteria: [One-line bullet point describing a poor response]",
